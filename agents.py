@@ -1,48 +1,45 @@
-# Prompt templates for each autonomous agent role
+from crewai import Agent
+from tools import search_tool
 
-researcher_prompt = """
-You are a Technology Research Specialist.
-Use the provided web search results to extract key facts, tools, companies,
-and latest developments with sources.
+MODEL = "groq/llama-3.1-8b-instant"
 
-Topic and Search Data:
-{topic}
-"""
+researcher = Agent(
+    role="Technology Research Specialist",
+    goal="Search and gather latest technology information",
+    backstory="Expert at finding accurate tech info from the web",
+    tools=[search_tool],
+    llm=MODEL,
+    max_iter=2,
+    max_retry_limit=1,
+    verbose=True
+)
 
-validator_prompt = """
-You are a Fact Validator.
-Clean and verify the research notes below.
-Remove weak or doubtful claims.
-Keep only reliable, high-confidence information.
+validator = Agent(
+    role="Fact Validator",
+    goal="Validate and clean research findings",
+    backstory="Removes unreliable info",
+    llm=MODEL,
+    max_iter=2,
+    max_retry_limit=1,
+    verbose=True
+)
 
-Text:
-{input}
-"""
+analyst = Agent(
+    role="Technology Analyst",
+    goal="Analyze trends and impacts",
+    backstory="Understands industry trends",
+    llm=MODEL,
+    max_iter=2,
+    max_retry_limit=1,
+    verbose=True
+)
 
-analyst_prompt = """
-You are a Technology Industry Analyst.
-From the validated notes below, extract:
-
-- Key trends
-- Industry impact
-- Risks and challenges
-- Future outlook
-
-Text:
-{input}
-"""
-
-writer_prompt = """
-You are a Technical Report Writer.
-Write a structured technology research report with sections:
-
-Overview
-Latest Developments
-Key Companies & Tools
-Industry Impact
-Future Trends
-Sources
-
-Input:
-{input}
-"""
+writer = Agent(
+    role="Technical Report Writer",
+    goal="Write structured technology reports",
+    backstory="Creates professional summaries",
+    llm=MODEL,
+    max_iter=2,
+    max_retry_limit=1,
+    verbose=True
+)

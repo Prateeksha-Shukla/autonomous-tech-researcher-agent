@@ -3,37 +3,25 @@ from agents import researcher, validator, analyst, writer
 
 
 research_task = Task(
-    description="Research the topic: {topic} using web search. Include latest trends and sources.",
-    expected_output="Detailed research notes with sources and key facts.",
+    description="Research the topic: {topic} using web search and gather latest technology insights with sources.",
+    expected_output="Raw research findings with key facts and references",
     agent=researcher
 )
 
 validation_task = Task(
-    description="Validate the research and remove unreliable or weak information.",
-    expected_output="Cleaned and verified research findings.",
+    description="Validate and clean the research findings. Remove weak or duplicate info.",
+    expected_output="Validated and reliable research points",
     agent=validator
 )
 
 analysis_task = Task(
-    description="Analyze findings and extract trends, industry impact, and future outlook.",
-    expected_output="Analytical insights and trend summary.",
+    description="Analyze validated findings and extract trends, impacts, and industry relevance.",
+    expected_output="Analytical insights and trend summary",
     agent=analyst
 )
 
-summary_task = Task(
-    description="""
-Write a structured report with:
-
-Overview
-Latest Developments
-Key Companies
-Industry Impact
-Future Trends
-Sources
-
-Topic: {topic}
-""",
-    expected_output="Final structured technology report.",
-    agent=writer,
-    output_file="knowledge_repo/{topic}.txt"
+writing_task = Task(
+    description="Write a structured professional technology report with sections and summary.",
+    expected_output="Final structured technology report",
+    agent=writer
 )

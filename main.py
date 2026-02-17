@@ -1,55 +1,30 @@
-import config  # loads .env first
-
-from langchain_groq import ChatGroq
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-
-from tools import search_tool
-from agents import researcher_prompt, validator_prompt, analyst_prompt, writer_prompt
-from memory import save_memory
-from evaluator import evaluate_quality
+from crewai import Crew
+from tasks import research_task, validation_task, analysis_task, writing_task
+from agents import researcher, validator, analyst, writer
 
 
-llm = ChatGroq(
-    model_name="llama-3.1-8b-instant",
-    temperature=0.2
-)
+def run_research_pipeline(topic):
 
-parser = StrOutputParser()
+    crew = Crew(
+        agents=[researcher, validator, analyst, writer],
+        tasks=[research_task, validation_task, analysis_task, writing_task],
+        verbose=True
+    )
 
+    result = crew.kickoff(inputs={"topic": topic})
 
-def run_step(prompt_text, **kwargs):
-    prompt = PromptTemplate.from_template(prompt_text)
-    chain = prompt | llm | parser
-    return chain.invoke(kwargs)
+    # ✅ convert CrewOutput to string safely
+    result_text = str(result)
 
+    # save report
+    with open("knowledge_repo/latest_report.txt", "w", encoding="utf-8") as f:
+        f.write(result_text)
 
-def main():
-    topic = input("Enter technology topic: ")
-
-    print("\n🔎 Searching web...")
-    search_results = search_tool.run(topic)
-
-    print("\n🤖 Researcher running...")
-    research_notes = run_step(researcher_prompt, topic=topic + "\n" + str(search_results))
-
-    print("\n✅ Validator running...")
-    validated = run_step(validator_prompt, input=research_notes)
-
-    print("\n📊 Analyst running...")
-    analysis = run_step(analyst_prompt, input=validated)
-
-    print("\n✍️ Writer running...")
-    report = run_step(writer_prompt, input=analysis)
-
-    print("\n===== FINAL REPORT =====\n")
-    print(report)
-
-    save_memory(topic, report)
-
-    score = evaluate_quality(report)
-    print(f"\nQuality Score: {score}/15")
+    return result_text
 
 
 if __name__ == "__main__":
-    main()
+    topic = input("Enter technology topic: ")
+    output = run_research_pipeline(topic)
+    print("\n===== FINAL REPORT =====\n")
+    print(output)
